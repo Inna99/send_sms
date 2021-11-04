@@ -17,4 +17,4 @@ jobs:
           ls -la
           flake8 .
           isort --check .
-          py.test tests
+#          py.test tests
