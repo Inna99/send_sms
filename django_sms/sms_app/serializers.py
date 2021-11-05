@@ -5,5 +5,4 @@ from .models import Text
 class TextSerializer(serializers.ModelSerializer):
     class Meta:
         model = Text
-        fields = "body", "phone_number", "provider", "date_created"
-
+        fields = "uuid", "body", "phone_number", "provider", "date_created"
