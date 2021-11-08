@@ -1,4 +1,5 @@
 .idea/
+django_sms/sms_app/sent_sms/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
