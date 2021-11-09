@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 
@@ -8,7 +10,7 @@ class Text(models.Model):
         ("plug", "provider Plug"),
         ("file", "provider File"),
     )
-    uuid = models.IntegerField(primary_key=True, blank=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     body = models.CharField(max_length=140, blank=True, default="")
     phone_number = models.CharField(max_length=12)
     sent = models.BooleanField(

@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-85bbh^v_=1xk9lmqtj8fjrc%6%ooy=z5=djwg0-ck!#4!0=$50
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     "sms_app",
     "rest_framework",
     "drf_yasg",
-    # 'rest_framework.authtoken',
     "rest_framework_simplejwt",
 ]
 
@@ -84,7 +83,16 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres',
+#         'HOST': 'db',
+#         'PORT': 5432,
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

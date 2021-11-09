@@ -1,6 +1,12 @@
 import logging
 
-from django_sms.sms_app.strategy import FileProvider, Order, PlugProvider
+from .strategy import Context, FileProvider, PlugProvider
+
+
+def send(payload):
+    with open("sms.txt", "w") as f:
+        f.write(str(payload))
+    print(payload)
 
 
 def some_func(payload):
@@ -13,11 +19,11 @@ def some_func(payload):
     if "provider" in payload:
         provider = payload["provider"]
         if provider == "plug" or provider == "":
-            Order(PlugProvider(payload))
+            Context(PlugProvider(payload))
             return None
         elif provider == "file":
             for _ in range(3):
-                sms = Order(FileProvider(payload))
+                sms = Context(FileProvider(payload))
                 success = sms.send_sms()
                 if success:
                     return success

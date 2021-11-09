@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Order:
+class Context:
     def __init__(self, strategy=None) -> None:
         self.strategy = strategy
 
