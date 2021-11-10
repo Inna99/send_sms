@@ -1,7 +1,13 @@
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 
 
 class Context:
+    """
+    behavioral design pattern that lets you define a family of algorithms,
+    put each of them into a separate class
+    """
+
     def __init__(self, strategy=None) -> None:
         self.strategy = strategy
 
@@ -13,9 +19,8 @@ class Context:
     def strategy(self, strategy) -> None:
         self._strategy = strategy
 
-    def send_sms(self) -> None:
-        success = self._strategy.sending()
-        return success
+    def send_sms(self) -> dict:
+        return self._strategy.sending()
 
     def __repr__(self):
         return f"{self.send_sms()=}, strategy={self.strategy}"
@@ -37,7 +42,8 @@ class PlugProvider(Strategy):
         self.payload = payload
 
     def sending(self):
-        return None
+        self.payload["amount_send"] -= 1
+        return self.payload
 
 
 class FileProvider(Strategy):
@@ -52,12 +58,20 @@ class FileProvider(Strategy):
         self.payload = payload
 
     def sending(self):
+        self.payload["amount_send"] -= 1
         if not int(self.payload["phone_number"][-1]) % 2:
+            date_created = datetime.strptime(
+                self.payload["date_created"], "%Y-%m-%dT%H:%M:%S%z"
+            )
+            self.payload["date_created"] = (
+                date_created + timedelta(seconds=10)
+            ).isoformat()
             with open(
                 f"sent_sms/{self.payload['date_created']}_{self.payload['phone_number']}.txt",
                 "w",
             ) as f:
                 f.write(self.payload["body"])
-            return True
+            self.payload["delivered"] = "sent"
         else:
-            return False
+            self.payload["delivered"] = "not sent"
+        return self.payload

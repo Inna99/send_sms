@@ -1,44 +1,38 @@
-import logging
+# from multiprocessing import Queue, Process
 
+from .models import Text
 from .strategy import Context, FileProvider, PlugProvider
 
 
 def send(payload):
-    with open("sms.txt", "w") as f:
-        f.write(str(payload))
-    print(payload)
-
-
-def some_func(payload):
     """
-    * если отправка смс неуспешна, происходит автоматический повтор отправки, максимум попыток определяется для каждого
-     провайдера отдельно. (для сохранения в файлы = 3, для заглушки = 1).
-    промежуток между повторами определяется для каждого провайдера отдельно (по умолчанию 0.5 у каждого)
-    * время ожидания ответа от сервера на любой запрос не должно превышать 1 секунды.
+    Sets the number of attempts to send.
+    When attempts are exhausted or the message is sent.
+    Fills in the delivered field in the database
     """
-    if "provider" in payload:
-        provider = payload["provider"]
-        if provider == "plug" or provider == "":
-            Context(PlugProvider(payload))
-            return None
-        elif provider == "file":
-            for _ in range(3):
-                sms = Context(FileProvider(payload))
-                success = sms.send_sms()
-                if success:
-                    return success
-            return success
-        else:
-            logging.Logger("there is no such provider")
+    if not ("amount_send" in payload):
+        make_send(payload)
+    elif payload["delivered"] != "sent" and payload["amount_send"] > 0:
+        make_send(payload)
+    else:
+        entries = Text.objects.get(id=payload["id"])
+        entries.delivered = payload["delivered"]
+        entries.save()
 
 
-if __name__ == "__main__":  # pragma: no cover
-    payload = {
-        "uuid": 11,
-        "body": "string",
-        "provider": "file",
-        "phone_number": "89516783430",
-        "date_created": "2021-11-07",
-    }
-
-    print(some_func(payload))
+def make_send(payload):
+    """
+    depending on the selected operator determines the method of sending the message
+    """
+    provider = payload["provider"]
+    if provider == "plug" or provider == "":
+        if not ("amount_send" in payload):
+            payload.update({"delivered": "unknown", "amount_send": 1})
+        context = Context(PlugProvider(payload))
+        payload = context.send_sms()
+    elif provider == "file":
+        if not ("amount_send" in payload):
+            payload.update({"delivered": "unknown", "amount_send": 3})
+        context = Context(FileProvider(payload))
+        payload = context.send_sms()
+    send(payload)
